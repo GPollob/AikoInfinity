@@ -1,85 +1,110 @@
-# 🌐 Python-Specific Files
-__pycache__/               # Python cache files
-*.py[cod]                  # Compiled Python files (.pyc, .pyo, etc.)
+# ========================
+# 🐍 Python Essentials
+# ========================
+__pycache__/
+*.py[cod]
+*.pyo
+*.pyd
+venv/
+.venv/
+env/
+ENV/
+.ipynb_checkpoints/
+*.egg-info/
+build/
+dist/
+.eggs/
 
-# 🐍 Virtual Environments
-venv/                      # Local virtual environments
-.env/                      # Alternative virtual env directory
-.venv/                     # Hidden virtual environments
-env/                       # Generic env directory
-ENV/                       # Capitalized alternative
-env.bak/                   # Backup virtual environments
+# ========================
+# 🖥️ System & Editors
+# ========================
+.DS_Store
+Thumbs.db
+Desktop.ini
+.vscode/
+.idea/
+*.sublime-*
+*.emacs.d/
+*.swp
+*.swo
+*.bak
+*.tmp
 
-# 📓 Jupyter Notebooks
-.ipynb_checkpoints/        # Auto-saved notebook checkpoints
+# ========================
+# ⚙️ Project Configuration
+# ========================
+*.env
+.env.local
+.env.*.local
+*.ini
+*-config.json
+!config/openai_config.json
+!config/feature_flags.json
 
-# 🛠️ Python Packaging
-*.egg-info/                # Installed Python package metadata
-build/                     # Build artifacts
-dist/                      # Distribution packages
-.eggs/                     # Legacy Python eggs
+# ========================
+# 🤖 AI/ML Core
+# ========================
+ai/models/gpt/
+ai/models/dalle/
+ai/models/whisper/
+ai/finetune/trained_models/
+*.checkpoint
+*.h5
+*.pt
+*.bin
 
-# 💻 IDE & Editor Settings
-.vscode/                   # Visual Studio Code settings
-.idea/                     # IntelliJ and PyCharm settings
-*.sublime-workspace        # Sublime workspace configs
-*.sublime-project          # Sublime project files
-*.emacs.d/                 # Emacs configurations
+# ========================
+# 🗄️ Storage Systems
+# ========================
+storage/logs/
+storage/backup/
+storage/redis/
+storage/cloud-storage/
+*.sqlite
+*.db
+*.db-journal
 
-# 🍏 macOS Metadata
-.DS_Store                  # Finder metadata
+# ========================
+# 🌐 Web Assets
+# ========================
+web/assets/dist/
+web/styles/*.css.map
+web/scripts/*.js.map
 
-# 🖥️ Windows Metadata
-Thumbs.db                  # Thumbnail cache
-Desktop.ini                # Folder customization
+# ========================
+# 🧪 Quality Assurance
+# ========================
+*.pytest_cache/
+coverage/
+*.cover
 
-# 🗒️ Logs
-*.log                      # General logs
-*.out                      # Logs output files
+# ========================
+# 📦 Dependencies
+# ========================
+node_modules/
+*.snap
 
-# 🗑️ Temporary & Backup Files
-*.bak                      # Backup files
-*.swp                      # Vim swap files
-*.tmp                      # Temporary files
-*.swo                      # Alternative Vim swap files
+# ========================
+# 🚀 CI/CD Pipelines
+# ========================
+.github/*
+!.github/workflows/ai-integration.yml
+!.github/workflows/model-finetuning.yml
+!.github/workflows/tests.yml
+.gitlab-ci.yml
 
-# 🔬 Testing & Caching
-*.pytest_cache/            # pytest cache
+# ========================
+# 📚 Documentation
+# ========================
+*.md
+!README.md
+!docs/**/*.md
+!*.yml
+*.yaml
 
-# ⚙️ Environment Configurations
-*.env                      # Environment variable files
-*.ini                      # Local INI files
-*.yaml                     # YAML config files
-*.json                     # JSON config files
-
-# 📦 Node.js Files (For Full-Stack Projects)
-node_modules/              # Node.js dependencies
-
-# 🛡️ GitHub-Specific Configurations
-.github/                   # GitHub workflows/settings (track only required items)
-*.github/                  # Ensure only valid GitHub configurations
-.gitlab-ci.yml             # GitLab CI/CD configs (if multi-platform)
-
-# 🏗️ OpenAI Enthusiast Details
-# Enhance collaboration and documentation while maintaining GitHub excellence!
-*.md                       # Document files (tracked but not bloated)
-*.txt                      # Text files to include specific instructions
-
-# ⚡ Optional Dependencies
-*.snap                     # Binary snapshots for testing or legacy
-
-# 🌟 Deep Enthusiasm for Organization
-!README.md                 # Keep primary docs tracked
-!*.yml                     # Keep key YAML files in version control
-!docs/**                   # Include structured documentation folders
-
-# 🚀 Additions for Excellence
-.idea/                     # JetBrains IntelliJ or Android Studio folders
-coverage/                  # Code coverage reports
-*.cover                    # Specific testing coverage logs
-
-# ⚠️ Notes:
-# - Refine according to evolving requirements.
-# - Ensure any CI/CD integration tools are synchronized with `.gitignore`.
-# - Regularly review and update this file to prevent unnecessary files from being tracked.
-# - Validate specific exclusions with your team or contributors to ensure smooth collaboration.
+# ========================
+# 📝 Logs & Outputs
+# ========================
+*.log
+*.out
+*.txt
