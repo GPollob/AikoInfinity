@@ -1,66 +1,73 @@
 # ========================
-# Stage 1: Builder Stage
+# 🛠️ Build Stage - Frontend
 # ========================
-FROM python:3.9-slim-buster as builder
+FROM node:18-alpine as frontend-builder
 
-# Set core environment variables
+WORKDIR /app/web
+COPY web/package*.json ./
+RUN npm ci --silent
+COPY web/ .
+RUN npm run build
+
+# ========================
+# 🐍 Base Python Environment
+# ========================
+FROM python:3.11-slim as base
+
 ENV PYTHONUNBUFFERED=1 \
     PYTHONDONTWRITEBYTECODE=1 \
-    PIP_NO_CACHE_DIR=off \
-    PIP_DISABLE_PIP_VERSION_CHECK=on
+    PIP_NO_CACHE_DIR=1 \
+    PIP_DISABLE_PIP_VERSION_CHECK=1
 
 WORKDIR /app
 
-# Install system build dependencies
-RUN apt-get update && \
-    apt-get install -y --no-install-recommends \
-    gcc \
-    libpq-dev \
-    && rm -rf /var/lib/apt/lists/*
+# ========================
+# 📦 Dependency Installation
+# ========================
+FROM base as python-builder
 
-# Install Python dependencies
+WORKDIR /install
+
 COPY requirements.txt .
-RUN pip wheel --no-cache-dir --wheel-dir=/app/wheels -r requirements.txt
+RUN pip install --prefix=/install -r requirements.txt
 
 # ========================
-# Stage 2: Runtime Stage
+# 🚀 Final Production Image
 # ========================
-FROM python:3.9-slim-buster
+FROM base
 
-# Create non-root user
-RUN addgroup --system aiko && adduser --system --ingroup aiko aiko
+# Copy Python dependencies
+COPY --from=python-builder /install /usr/local
 
-# Set environment variables
-ENV PYTHONUNBUFFERED=1 \
-    PYTHONDONTWRITEBYTECODE=1 \
-    PATH="/home/aiko/.local/bin:$PATH"
+# Copy application code
+COPY ai/ ai/
+COPY config/ config/
+COPY storage/ storage/
+COPY app/ app/
 
-WORKDIR /app
+# Copy built frontend assets
+COPY --from=frontend-builder /app/web/assets/dist web/assets/dist
 
-# Install runtime dependencies
-RUN apt-get update && \
-    apt-get install -y --no-install-recommends \
-    libpq5 \
+# Create required directories
+RUN mkdir -p \
+    storage/logs \
+    storage/backup \
+    ai/finetune/trained_models \
+    && chmod -R 755 storage/
+
+# Install system dependencies
+RUN apt-get update && apt-get install -y --no-install-recommends \
+    libgomp1 \
+    ffmpeg \
     && rm -rf /var/lib/apt/lists/*
 
-# Copy from builder
-COPY --from=builder /app/wheels /wheels
-RUN pip install --no-cache-dir /wheels/* && rm -rf /wheels
+# Expose application port
+EXPOSE 8000
 
-# Copy application files (preserving .gitignore patterns)
-COPY --chown=aiko:aiko . .
-
-# Ensure config files exist
-RUN test -f config/openai_config.json && \
-    test -f config/feature_flags.json
-
-# Switch to non-root user
-USER aiko
-
-# Health check
-HEALTHCHECK --interval=30s --timeout=30s --start-period=5s --retries=3 \
-    CMD curl --fail http://localhost:5000/health || exit 1
-
-# Expose and run application
-EXPOSE 5000
-CMD ["gunicorn", "--bind", "0.0.0.0:5000", "--workers", "4", "app:app"]
+# ========================
+# 🏃 Runtime Configuration
+# ========================
+CMD ["gunicorn", "app.main:app", \
+    "--bind", "0.0.0.0:8000", \
+    "--workers", "4", \
+    "--worker-class", "uvicorn.workers.UvicornWorker"]
