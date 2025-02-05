@@ -1,0 +1,73 @@
+version: '3.8'
+
+services:
+  # Backend service: For running the AI-powered API and core application logic
+  ai_backend:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: aiko_backend
+    environment:
+      - OPENAI_API_KEY=${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}  # Expose your OpenAI API key as an env variable
+      - FEATURE_FLAGS=${FEATURE_FLAGS}  # Feature toggles
+    volumes:
+      - ./ai:/app/ai  # Mount AI directory
+      - ./config:/app/config  # Mount config files
+      - ./logs:/app/logs  # Mount logs (though typically ignored by Git, useful for monitoring)
+    ports:
+      - "5000:5000"  # Exposing port 5000 for the backend API
+    depends_on:
+      - redis  # Backend depends on Redis caching service
+      - web  # Web server must be ready first
+
+  # Web service: For serving the front-end application
+  web:
+    build:
+      context: ./web
+      dockerfile: Dockerfile  # Separate Dockerfile for web
+    container_name: aiko_web
+    volumes:
+      - ./web:/app/web
+    ports:
+      - "8080:80"  # Expose web server port
+    depends_on:
+      - ai_backend  # Web depends on AI backend API
+
+  # Redis service: For caching and performance optimization
+  redis:
+    image: redis:latest
+    container_name: aiko_redis
+    volumes:
+      - redis_data:/data  # Persistent storage for Redis data
+    ports:
+      - "6379:6379"  # Expose Redis default port
+
+  # Database service (optional): Could be used for persistent data storage (e.g., for user data, logs)
+  # db:
+  #   image: postgres:latest
+  #   container_name: aiko_db
+  #   environment:
+  #     - POSTGRES_DB=aikoinfinity_db
+  #     - POSTGRES_USER=your_user
+  #     - POSTGRES_PASSWORD=your_password
+  #   volumes:
+  #     - db_data:/var/lib/postgresql/data  # Persistent storage for DB
+  #   ports:
+  #     - "5432:5432"  # Expose PostgreSQL default port
+
+  # Backup service (optional): For periodic backups of important data
+  # backup:
+  #   image: alpine:latest  # Base image for backup tasks
+  #   container_name: aiko_backup
+  #   command: ["sh", "-c", "tar -czf /backups/aiko_backup.tar.gz /data"]
+  #   volumes:
+  #     - ./backup:/backups  # Backup directory
+  #     - ./storage:/data  # Data to be backed up
+  #   depends_on:
+  #     - ai_backend
+
+volumes:
+  redis_data:
+    driver: local
+  # db_data:
+  #   driver: local
